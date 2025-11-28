@@ -170,15 +170,6 @@ def distance_to_clouds(dir_s2, ratio=30, tolerance_percentage=0.05):
 
         # Distance to cloud score
         mask = s2_block < tolerance_percentage
-        # TODO DEBUG OUTPUTS
-        out_path_block = re.sub("_[A-Z]*\.tif", "_cm_averaged.tif", str(sen2_path))
-        with rasterio.open(out_path_block, "w", **s2_profile) as dst:
-            dst.write(s2_block[np.newaxis])
-        out_path_mask = re.sub("_[A-Z]*\.tif", "_mask.tif", str(sen2_path))
-        with rasterio.open(out_path_mask, "w", **s2_profile) as dst:
-            dst.write(mask[np.newaxis])
-        # TODO DEBUG OUTPUTS
-
         distance_to_cloud = sp.ndimage.distance_transform_edt(mask)
         distance_to_cloud = np.clip(distance_to_cloud, 0, 255)
 
@@ -212,6 +203,16 @@ def distance_to_clouds(dir_s2, ratio=30, tolerance_percentage=0.05):
         out_path = re.sub("_[A-Z]*\.tif", "_DIST_CLOUD.tif", str(sen2_path))
         with rasterio.open(out_path, "w", **s2_profile) as dst:
             dst.write(distance_to_cloud[np.newaxis])
+
+        # TODO DEBUG OUTPUTS
+        out_path_block = re.sub("_[A-Z]*\.tif", "_cm_averaged.tif", str(sen2_path))
+        with rasterio.open(out_path_block, "w", **s2_profile) as dst:
+            dst.write(s2_block[np.newaxis])
+        out_path_mask = re.sub("_[A-Z]*\.tif", "_mask.tif", str(sen2_path))
+        with rasterio.open(out_path_mask, "w", **s2_profile) as dst:
+            dst.write(mask[np.newaxis])
+        # TODO DEBUG OUTPUTS
+
 
 
 def get_wkt_footprint(dir_s2, crs="EPSG:4326"):
