@@ -216,6 +216,24 @@ def fusion(
     # Product
     w_i = wo_i * wt_i.reshape((len(t_s2), 1, 1))
 
+    # TODO remove
+    from pathlib import Path
+    from datetime import datetime
+    with rasterio.open(hr_paths_hr[0]) as src:
+        profile = src.profile
+    for i, day in enumerate(hr_dates):
+        output_path_dtc = os.path.join(
+            fusion_dir.parent / "s2_distance_score",
+            f'distance_score_s2_{datetime.strftime(day, "%Y-%m-%d")}.tif',
+            )
+        distance_score_profile = profile | dict(count=1, dtype="float64")
+
+        Path(output_path_dtc).parent.mkdir(exist_ok=True)
+
+        if not Path(output_path_dtc).exists():
+            with rasterio.open(output_path_dtc, "w", **distance_score_profile) as dst:
+                dst.write(wo_i[i:i+1, :, :])
+    # TODO remove
     # Normalize the weights
     Sw_i = np.nansum(w_i, axis=0)
     Sw_i[Sw_i == 0] = np.nan
